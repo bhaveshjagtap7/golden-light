@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dev By Bhavesh - Cinematic Light</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background-color: #000;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  svg {
+    width: 100vw;
+    height: 100vh;
+    display: block;
+    background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+  }
+
+  .note {
+    position: fixed;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    color: #888;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<svg viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Bulb glow -->
+    <filter id="bulbGlow">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Light gradient -->
+    <radialGradient id="lightGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="white" stop-opacity="1"/>
+      <stop offset="50%" stop-color="white" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Mask for light -->
+    <mask id="revealMask">
+      <rect width="1200" height="700" fill="black"/>
+      <circle id="maskCircle" cx="600" cy="180" r="220" fill="url(#lightGrad)"/>
+    </mask>
+
+    <!-- Text glow -->
+    <filter id="textGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Wire -->
+  <line id="wire" x1="600" y1="0" x2="600" y2="180" stroke="#777" stroke-width="2"/>
+
+  <!-- Text (dim base) -->
+  <text x="600" y="330" text-anchor="middle" font-size="80" font-weight="600" fill="#2a2a2a">Dev By</text>
+  <text x="600" y="450" text-anchor="middle" font-size="150" font-weight="700" fill="#2b2b2b">Bhavesh</text>
+
+  <!-- Bright text under moving light -->
+  <g mask="url(#revealMask)">
+    <text x="600" y="330" text-anchor="middle" font-size="80" font-weight="600" fill="#FFD54F" style="filter:url(#textGlow)">Dev By</text>
+    <text x="600" y="450" text-anchor="middle" font-size="150" font-weight="700" fill="#FFD54F" style="filter:url(#textGlow)">Bhavesh</text>
+  </g>
+
+  <!-- Bulb -->
+  <g id="bulb" filter="url(#bulbGlow)">
+    <circle id="bulbLight" cx="0" cy="0" r="14" fill="#FFD54F"/>
+  </g>
+</svg>
+
+<div class="note">💡 Cinematic Golden Light – Dev By Bhavesh</div>
+
+<script>
+const bulb = document.getElementById("bulb");
+const bulbLight = document.getElementById("bulbLight");
+const wire = document.getElementById("wire");
+const maskCircle = document.getElementById("maskCircle");
+
+let angle = 0;
+let speed = 0.03;
+let swingRange = 220; 
+let pivotX = 600;
+let pivotY = 0;
+let wireLength = 180;
+
+function animate() {
+  angle += speed;
+  
+  // left-right swing
+  const swingX = pivotX + Math.sin(angle) * swingRange;
+  const swingY = pivotY + wireLength;
+
+  // soft pulsing glow (fade in/out)
+  const brightness = (Math.sin(angle * 2) + 1) / 2; // range 0–1
+  const glowColor = `rgba(255,213,79,${0.6 + brightness * 0.4})`;
+  bulbLight.setAttribute("fill", glowColor);
+
+  // move bulb
+  bulb.setAttribute("transform", `translate(${swingX}, ${swingY})`);
+  maskCircle.setAttribute("cx", swingX);
+  maskCircle.setAttribute("cy", swingY + 80);
+
+  // wire follows bulb
+  wire.setAttribute("x2", swingX);
+  wire.setAttribute("y2", swingY);
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+</body>
+</html>
